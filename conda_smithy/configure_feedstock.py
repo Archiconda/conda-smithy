@@ -453,7 +453,7 @@ def _render_ci_provider(provider_name, jinja_env, forge_config, forge_dir, platf
 
         for platform in platforms:
             configs = glob.glob(os.path.join(forge_dir, '.ci_support',
-                                             '{}_*'.format(platform)))
+                                             '*_{}-{}'.format(platform, arch)))
             for config in configs:
                 remove_file(config)
 
@@ -637,6 +637,35 @@ def _get_platforms_of_provider(provider, forge_config):
                 keep_noarchs.append(False)
             archs.append('64')
     return platforms, archs, keep_noarchs
+
+
+def _get_shippable_platforms(provider, forge_config):
+    return ['linux'], ['aarch64'], [False]
+
+
+def render_shippable(jinja_env, forge_config, forge_dir):
+    target_path = os.path.join(forge_dir, 'shippable.yml')
+    template_filename = 'shippable.yml.tmpl'
+    fast_finish_text = ""
+
+    # TODO: for now just get this ignoring other pieces
+    platforms, archs, keep_noarchs = _get_shippable_platforms(
+        'shippable', forge_config)
+    return _render_ci_provider('shippable',
+                               jinja_env=jinja_env,
+                               forge_config=forge_config,
+                               forge_dir=forge_dir,
+                               platforms=platforms,
+                               archs=archs,
+                               fast_finish_text=fast_finish_text,
+                               platform_target_path=target_path,
+                               platform_template_file=template_filename,
+                               platform_specific_setup=_shippable_specific_setup,
+                               keep_noarchs=keep_noarchs,)
+
+
+def _shippable_specific_setup(jinja_env, forge_config, forge_dir, platform):
+    pass
 
 
 def render_circle(jinja_env, forge_config, forge_dir):
@@ -874,6 +903,7 @@ def _load_forge_config(forge_dir, exclusive_config_file):
               'templates': {},
               'travis': {},
               'circle': {},
+              'shippable': {},
               'appveyor': {},
               'azure': {
                   # disallow publication of azure artifacts for now.
@@ -1047,7 +1077,6 @@ def main(forge_file_directory, no_check_uptodate, commit, exclusive_config_file)
     error_on_warn = False if no_check_uptodate else True
     index = conda_build.conda_interface.get_index(channel_urls=['conda-forge'])
     r = conda_build.conda_interface.Resolve(index)
-
     # Check that conda-smithy is up-to-date
     check_version_uptodate(r, "conda-smithy", __version__, error_on_warn)
 
@@ -1062,7 +1091,7 @@ def main(forge_file_directory, no_check_uptodate, commit, exclusive_config_file)
         exclusive_config_file, cf_pinning_ver = get_cfp_file_path(r, error_on_warn)
 
     config = _load_forge_config(forge_dir, exclusive_config_file)
-
+    import pdb; pdb.set_trace()
     for each_ci in ["travis", "circle", "appveyor"]:
         if config[each_ci].pop("enabled", None):
             warnings.warn(
@@ -1080,11 +1109,12 @@ def main(forge_file_directory, no_check_uptodate, commit, exclusive_config_file)
                                                tmplt_dir]))
 
     copy_feedstock_content(forge_dir)
-
+    import pdb; pdb.set_trace()
     render_circle(env, config, forge_dir)
     render_travis(env, config, forge_dir)
     render_appveyor(env, config, forge_dir)
     render_azure(env, config, forge_dir)
+    render_shippable(env, config, forge_dir)
     render_README(env, config, forge_dir)
 
     if os.path.isdir(os.path.join(forge_dir, '.ci_support')):
