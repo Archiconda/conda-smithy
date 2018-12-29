@@ -1091,7 +1091,6 @@ def main(forge_file_directory, no_check_uptodate, commit, exclusive_config_file)
         exclusive_config_file, cf_pinning_ver = get_cfp_file_path(r, error_on_warn)
 
     config = _load_forge_config(forge_dir, exclusive_config_file)
-    import pdb; pdb.set_trace()
     for each_ci in ["travis", "circle", "appveyor"]:
         if config[each_ci].pop("enabled", None):
             warnings.warn(
@@ -1109,7 +1108,7 @@ def main(forge_file_directory, no_check_uptodate, commit, exclusive_config_file)
                                                tmplt_dir]))
 
     copy_feedstock_content(forge_dir)
-    import pdb; pdb.set_trace()
+
     render_circle(env, config, forge_dir)
     render_travis(env, config, forge_dir)
     render_appveyor(env, config, forge_dir)
