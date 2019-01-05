@@ -38,14 +38,20 @@ All platforms: ![noarch disabled]({{ shield }}badge/noarch-disabled-lightgrey.sv
 {%- if appveyor.enabled %}
 [![Windows]({{ shield }}appveyor/ci/{{ github.user_or_org }}/{{ appveyor_url_name }}/{{ github.branch_name }}.svg?label=Windows)](https://ci.appveyor.com/project/{{ github.user_or_org }}/{{ appveyor_url_name }}/branch/{{ github.branch_name }})
 {%- endif %}
-{%- if not linux.enabled %}
+{%- if shippable.enabled %}
+[![linux-aarch64]({{ shield }}shippable/{{ shippable.projectid }}/aarch64.svg?label=linux-aarch64)](https://app.shippable.com/github/Archiconda/{{ github.repo_name }})
+{%- endif %}
+{%- if not linux.amd64.enabled %}
 ![Linux disabled]({{ shield }}badge/linux-disabled-lightgrey.svg)
 {%- endif %}
-{%- if not osx.enabled %}
+{%- if not osx.amd64.enabled %}
 ![OSX disabled]({{ shield }}badge/OSX-disabled-lightgrey.svg)
 {%- endif %}
-{%- if not win.enabled %}
+{%- if not win.amd64.enabled %}
 ![Windows disabled]({{ shield }}badge/Windows-disabled-lightgrey.svg)
+{%- endif %}
+{%- if not linux.aarch64.enabled %}
+![aarch64 disabled]({{ shield }}badge/linux-aarch64-disabled-lightgrey.svg)
 {%- endif %}
 {%- endif %}
 

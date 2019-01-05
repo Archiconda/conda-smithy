@@ -422,9 +422,10 @@ def _render_ci_provider(provider_name, jinja_env, forge_config, forge_dir, platf
     metas_list_of_lists = []
     enable_platform = [False]*len(platforms)
     for i, (platform, arch, keep_noarch) in enumerate(zip(platforms, archs, keep_noarchs)):
+        conda_build_arch = '64' if arch == 'amd64' else arch
         metas = conda_build.api.render(os.path.join(forge_dir, 'recipe'),
                                    exclusive_config_file=forge_config['exclusive_config_file'],
-                                   platform=platform, arch=arch,
+                                   platform=platform, arch=conda_build_arch,
                                    permit_undefined_jinja=True, finalize=False,
                                    bypass_env_check=True,
                                    channel_urls=forge_config.get('channels', {}).get('sources', []))
@@ -475,10 +476,10 @@ def _render_ci_provider(provider_name, jinja_env, forge_config, forge_dir, platf
         unfancy_platforms = set()
 
         configs = []
-        for metas, platform, enable in zip(metas_list_of_lists, platforms, enable_platform):
+        for metas, platform, arch, enable in zip(metas_list_of_lists, platforms, archs, enable_platform):
             if enable:
                 configs.extend(dump_subspace_config_files(metas, forge_dir, platform))
-                forge_config[platform]["enabled"] = True
+                forge_config[platform][arch]["enabled"] = True
                 fancy_platforms.append(fancy_name[platform])
                 unfancy_platforms.add(platform)
             elif platform in extra_platform_files:
@@ -635,7 +636,7 @@ def _get_platforms_of_provider(provider, forge_config):
                 keep_noarchs.append(True)
             else:
                 keep_noarchs.append(False)
-            archs.append('64')
+            archs.append('amd64')
     return platforms, archs, keep_noarchs
 
 
@@ -836,7 +837,9 @@ def _get_azure_platforms(provider, forge_config):
                 keep_noarchs.append(True)
             else:
                 keep_noarchs.append(False)
-            archs.append('64')
+            # Conda build doesn't call this amd64, but I had trouble
+            # with jinja templating with '64' as the entry
+            archs.append('amd64')
     return platforms, archs, keep_noarchs
 
 
@@ -872,7 +875,6 @@ def render_README(jinja_env, forge_config, forge_dir):
         package_name = metas[0][0].meta["extra"]["parent_recipe"]["name"]
     else:
         package_name = metas[0][0].name()
-
     template = jinja_env.get_template('README.md.tmpl')
     target_fname = os.path.join(forge_dir, 'README.md')
     forge_config['noarch_python'] = all(meta[0].noarch for meta in metas)
@@ -913,9 +915,11 @@ def _load_forge_config(forge_dir, exclusive_config_file):
 
               },
               'provider': {'linux': 'circle', 'osx': 'travis', 'win': 'appveyor'},
-              'win': {'enabled': False},
-              'osx': {'enabled': False},
-              'linux': {'enabled': False},
+              'win': {'amd64': {'enabled': False}},
+              'osx': {'amd64': {'enabled': False}},
+              # linux really means linux amd64
+              'linux': {'amd64': {'enabled': False},
+                        'aarch64': {'enabled': False}},
               # Compiler stack environment variable
               'compiler_stack': 'comp4',
               # Stack variables,  These can be used to impose global defaults for how far we build out
