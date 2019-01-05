@@ -39,7 +39,7 @@ All platforms: ![noarch disabled]({{ shield }}badge/noarch-disabled-lightgrey.sv
 [![Windows]({{ shield }}appveyor/ci/{{ github.user_or_org }}/{{ appveyor_url_name }}/{{ github.branch_name }}.svg?label=Windows)](https://ci.appveyor.com/project/{{ github.user_or_org }}/{{ appveyor_url_name }}/branch/{{ github.branch_name }})
 {%- endif %}
 {%- if shippable.enabled %}
-[![linux-aarch64]({{ shield }}shippable/{{ shippable.projectid }}/aarch64.svg?label=linux-aarch64)](https://app.shippable.com/github/Archiconda/{{ github.repo_name }})
+[![linux-aarch64]({{ shield }}shippable/{{ shippable.projectId }}/aarch64.svg?label=linux-aarch64)](https://app.shippable.com/github/Archiconda/{{ github.repo_name }})
 {%- endif %}
 {%- if not linux.amd64.enabled %}
 ![Linux disabled]({{ shield }}badge/linux-disabled-lightgrey.svg)
