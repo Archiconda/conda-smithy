@@ -337,6 +337,8 @@ def finalize_config(config, platform):
                 config['build_number_decrement'] = [config['build_number_decrement'][-1]]
             except KeyError:
                 config['build_number_decrement'] = ['0']
+    if platform in {'linux_aarch64'}:
+        config['BUILD'] = 'aarch64-conda_cos7-linux-gnu'
 
     return config
 
