@@ -478,7 +478,10 @@ def _render_ci_provider(provider_name, jinja_env, forge_config, forge_dir, platf
         configs = []
         for metas, platform, arch, enable in zip(metas_list_of_lists, platforms, archs, enable_platform):
             if enable:
-                configs.extend(dump_subspace_config_files(metas, forge_dir, platform))
+                config_platform = platform
+                if arch != 'amd64':
+                    config_platform += '_' + arch
+                configs.extend(dump_subspace_config_files(metas, forge_dir, config_platform))
                 forge_config[platform][arch]["enabled"] = True
                 fancy_platforms.append(fancy_name[platform])
                 unfancy_platforms.add(platform)
