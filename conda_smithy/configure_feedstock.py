@@ -339,6 +339,9 @@ def finalize_config(config, platform):
                 config['build_number_decrement'] = ['0']
     if platform in {'linux_aarch64'}:
         config['BUILD'] = 'aarch64-conda_cos7-linux-gnu'
+        config['cdt_arch'] = 'aarch64'
+        config['cdt_name'] = 'cos7'
+        config['target_platform'] = 'linux-aarch64'
 
     return config
 
